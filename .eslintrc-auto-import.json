@@ -70,6 +70,7 @@
     "triggerRef": true,
     "unref": true,
     "useAttrs": true,
+    "useCommandHistoryStore": true,
     "useCssModule": true,
     "useCssVars": true,
     "useId": true,
