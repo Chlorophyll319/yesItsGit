@@ -4,17 +4,57 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import App from './App.vue'
 import router from './router'
 
-// FontAwesome
+// FontAwesome - 按需載入，避免整包 import 增大 bundle
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { fas } from '@fortawesome/free-solid-svg-icons'
-import { far } from '@fortawesome/free-regular-svg-icons'
-import { fab } from '@fortawesome/free-brands-svg-icons'
+import {
+  faBars,
+  faSun,
+  faMoon,
+  faBook,
+  faEnvelope,
+  faTerminal,
+  faTriangleExclamation,
+  faCheck,
+  faCopy,
+  faHandPointer,
+  faCloudArrowDown,
+  faFloppyDisk,
+  faCodeBranch,
+  faCodeMerge,
+  faArrowsRotate,
+  faUpload,
+  faDownload,
+  faBoxArchive,
+  faArrowRotateLeft,
+} from '@fortawesome/free-solid-svg-icons'
+import { faGithub } from '@fortawesome/free-brands-svg-icons'
 
 import './style.css'
 
 // 設定 FontAwesome
-library.add(fas, far, fab)
+library.add(
+  faBars,
+  faSun,
+  faMoon,
+  faBook,
+  faEnvelope,
+  faTerminal,
+  faTriangleExclamation,
+  faCheck,
+  faCopy,
+  faHandPointer,
+  faCloudArrowDown,
+  faFloppyDisk,
+  faCodeBranch,
+  faCodeMerge,
+  faArrowsRotate,
+  faUpload,
+  faDownload,
+  faBoxArchive,
+  faArrowRotateLeft,
+  faGithub,
+)
 
 // 建立 Pinia 實例
 const pinia = createPinia()
