@@ -346,8 +346,8 @@ meta:
     </div>
 
     <!-- Empty state -->
-    <div v-if="!selectedOp" class="text-center py-10 text-base-content/30">
-      <FontAwesomeIcon :icon="['fas', 'hand-pointer']" class="text-6xl mb-4" />
+    <div v-if="!selectedOp" class="text-center py-8 text-base-content/30">
+      <FontAwesomeIcon :icon="['fas', 'hand-pointer']" class="text-4xl mb-3" />
       <p class="text-xl font-medium">選擇上方的操作類型開始使用</p>
     </div>
   </div>
