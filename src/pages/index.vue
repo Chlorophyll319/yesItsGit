@@ -6,23 +6,23 @@ meta:
 </route>
 
 <template>
-  <div class="space-y-8">
+  <div class="space-y-6">
     <!-- Header -->
     <div class="text-center">
-      <h1 class="text-3xl font-bold">Git 指令產生器</h1>
-      <p class="mt-2 text-base-content/60">選擇操作類型，填入參數，一鍵複製指令</p>
+      <h1 class="text-2xl md:text-3xl font-bold">Git 指令產生器</h1>
+      <p class="mt-2 text-sm md:text-base text-base-content/60">選擇操作類型，填入參數，一鍵複製指令</p>
     </div>
 
     <!-- Operation Cards -->
-    <div class="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-3">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
       <button
         v-for="op in operations"
         :key="op.id"
-        class="card cursor-pointer transition-all duration-200 p-3 flex flex-col items-center gap-2 hover:shadow-md"
+        class="card cursor-pointer transition-all duration-200 py-4 px-2 flex flex-col items-center gap-2 hover:shadow-md min-h-[72px]"
         :class="selectedOp === op.id ? 'bg-primary text-primary-content shadow-md' : 'bg-base-200 hover:bg-base-300'"
         @click="selectOperation(op.id)"
       >
-        <FontAwesomeIcon :icon="op.icon" class="text-xl" />
+        <FontAwesomeIcon :icon="op.icon" class="text-2xl" />
         <span class="text-xs font-semibold">{{ op.label }}</span>
       </button>
     </div>
@@ -346,7 +346,7 @@ meta:
     </div>
 
     <!-- Empty state -->
-    <div v-if="!selectedOp" class="text-center py-20 text-base-content/30">
+    <div v-if="!selectedOp" class="text-center py-10 text-base-content/30">
       <FontAwesomeIcon :icon="['fas', 'hand-pointer']" class="text-6xl mb-4" />
       <p class="text-xl font-medium">選擇上方的操作類型開始使用</p>
     </div>

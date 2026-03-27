@@ -65,7 +65,7 @@
     </div>
 
     <!-- Main Content -->
-    <main class="flex-grow container mx-auto px-4 py-8">
+    <main class="flex-grow container mx-auto px-4 py-4 md:py-8">
       <RouterView />
     </main>
 
