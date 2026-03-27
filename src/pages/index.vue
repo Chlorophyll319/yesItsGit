@@ -14,7 +14,7 @@ meta:
     </div>
 
     <!-- Operation Cards -->
-    <div class="grid grid-cols-4 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+    <div class="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-3">
       <button
         v-for="op in operations"
         :key="op.id"
@@ -207,6 +207,15 @@ meta:
               <input v-model="form.setUpstream" type="checkbox" class="checkbox checkbox-sm" />
               <span class="label-text">設定上游追蹤 (-u)</span>
             </label>
+            <div class="divider my-0"></div>
+            <label class="label cursor-pointer justify-start gap-3">
+              <input v-model="form.forcePush" type="checkbox" class="checkbox checkbox-sm checkbox-error" />
+              <span class="label-text font-medium text-error">強制推送（危險）</span>
+            </label>
+            <label v-if="form.forcePush" class="label cursor-pointer justify-start gap-3">
+              <input v-model="form.forceWithLease" type="checkbox" class="checkbox checkbox-sm" />
+              <span class="label-text">改用 --force-with-lease（較安全）</span>
+            </label>
           </template>
 
           <!-- pull -->
@@ -261,6 +270,36 @@ meta:
               />
             </label>
           </template>
+
+          <!-- reset -->
+          <template v-else-if="selectedOp === 'reset'">
+            <div class="form-control">
+              <div class="label"><span class="label-text">重置模式</span></div>
+              <div class="flex flex-col gap-2">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" v-model="form.resetMode" value="soft" class="radio radio-sm" />
+                  <span>--soft（保留暫存區與工作目錄）</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" v-model="form.resetMode" value="mixed" class="radio radio-sm" />
+                  <span>--mixed（清除暫存區，保留工作目錄）</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" v-model="form.resetMode" value="hard" class="radio radio-sm radio-error" />
+                  <span class="font-medium text-error">--hard（清除暫存區與工作目錄，危險）</span>
+                </label>
+              </div>
+            </div>
+            <label class="form-control">
+              <div class="label"><span class="label-text">目標 commit</span></div>
+              <input
+                v-model="form.resetTarget"
+                type="text"
+                placeholder="HEAD~1"
+                class="input input-bordered"
+              />
+            </label>
+          </template>
         </div>
       </div>
 
@@ -281,9 +320,16 @@ meta:
             <pre v-else data-prefix="$"><code class="opacity-40">填寫左側表單後自動產生...</code></pre>
           </div>
 
-          <div v-if="isWarning" class="alert alert-warning">
-            <FontAwesomeIcon :icon="['fas', 'triangle-exclamation']" />
-            <span class="text-sm">此操作會修改提交記錄，請確認目前為本機分支</span>
+          <div
+            v-if="warningInfo"
+            class="alert"
+            :class="warningInfo.danger ? 'alert-error' : 'alert-warning'"
+          >
+            <FontAwesomeIcon :icon="['fas', 'triangle-exclamation']" class="text-xl shrink-0" />
+            <div class="flex flex-col gap-0.5">
+              <span class="font-bold text-sm">{{ warningInfo.title }}</span>
+              <span class="text-sm opacity-80">{{ warningInfo.desc }}</span>
+            </div>
           </div>
 
           <button
@@ -336,9 +382,14 @@ const form = ref({
   remote: 'origin',
   branch: '',
   setUpstream: false,
+  forcePush: false,
+  forceWithLease: false,
   // stash
   stashAction: 'save',
   stashMessage: '',
+  // reset
+  resetMode: 'mixed',
+  resetTarget: 'HEAD~1',
 })
 
 const operations = [
@@ -350,6 +401,7 @@ const operations = [
   { id: 'push', label: 'Push', icon: ['fas', 'upload'] },
   { id: 'pull', label: 'Pull', icon: ['fas', 'download'] },
   { id: 'stash', label: 'Stash', icon: ['fas', 'box-archive'] },
+  { id: 'reset', label: 'Reset', icon: ['fas', 'arrow-rotate-left'] },
 ]
 
 const branchActions = [
@@ -411,6 +463,7 @@ const commandLines = computed(() => {
       if (f.setUpstream) parts.push('-u')
       parts.push(f.remote || 'origin')
       if (f.branch) parts.push(f.branch)
+      if (f.forcePush) parts.push(f.forceWithLease ? '--force-with-lease' : '--force')
       return [parts.join(' ')]
     }
 
@@ -426,16 +479,54 @@ const commandLines = computed(() => {
       }
       return [`git stash ${f.stashAction}`]
 
+    case 'reset':
+      if (!f.resetTarget) return []
+      return [`git reset --${f.resetMode} ${f.resetTarget}`]
+
     default:
       return []
   }
 })
 
-const isWarning = computed(
-  () =>
-    selectedOp.value === 'rebase' ||
-    (selectedOp.value === 'branch' && form.value.branchAction === 'delete' && form.value.force),
-)
+const warningInfo = computed(() => {
+  const f = form.value
+  if (selectedOp.value === 'push' && f.forcePush) {
+    if (f.forceWithLease) {
+      return {
+        danger: false,
+        title: '注意：--force-with-lease',
+        desc: '遠端若有新提交則會拒絕推送，比 --force 安全，但仍會覆蓋遠端歷史',
+      }
+    }
+    return {
+      danger: true,
+      title: '高危險：強制覆蓋遠端歷史，無法復原',
+      desc: '其他協作者基於舊歷史的提交可能永久遺失，確認所有人已知情再執行',
+    }
+  }
+  if (selectedOp.value === 'rebase') {
+    return {
+      danger: false,
+      title: '注意：rebase 會重寫提交歷史',
+      desc: '若此分支已推送至遠端，需搭配 git push --force-with-lease 才能更新，請謹慎使用',
+    }
+  }
+  if (selectedOp.value === 'branch' && f.branchAction === 'delete' && f.force) {
+    return {
+      danger: false,
+      title: '注意：強制刪除分支 (-D)',
+      desc: '即使分支尚未合併至其他分支，所有未合併的提交也會隨之丟失',
+    }
+  }
+  if (selectedOp.value === 'reset' && f.resetMode === 'hard') {
+    return {
+      danger: true,
+      title: '高危險：--hard 會永久丟棄所有未提交的變更，無法復原',
+      desc: '工作目錄與暫存區的修改將全部消失，git 無法協助還原，請先確認沒有重要未提交內容',
+    }
+  }
+  return null
+})
 
 const selectOperation = (id) => {
   selectedOp.value = id
