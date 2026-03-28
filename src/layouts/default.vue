@@ -70,11 +70,11 @@
     </main>
 
     <!-- Footer -->
-    <footer class="footer footer-center bg-base-200 text-base-content p-10">
+    <footer class="footer footer-center bg-base-200 text-base-content px-4 py-8 md:p-10">
       <aside>
-        <div class="flex items-center gap-3">
-          <img src="@/assets/git.png" alt="Git Logo" class="h-12 w-12" />
-          <p class="font-bold text-lg">Yes, It's Git - Git 指令輔助工具</p>
+        <div class="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
+          <img src="@/assets/git.png" alt="Git Logo" class="h-10 w-10 sm:h-12 sm:w-12" />
+          <p class="font-bold text-sm sm:text-lg text-center">Yes, It's Git - Git 指令輔助工具</p>
         </div>
         <p class="text-sm">讓 Git 操作更簡單、更直觀</p>
         <p class="text-xs opacity-70">© 2025 itsGit. All rights reserved.</p>
