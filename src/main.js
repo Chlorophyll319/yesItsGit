@@ -27,6 +27,31 @@ import {
   faDownload,
   faBoxArchive,
   faArrowRotateLeft,
+  // Batch 2+
+  faCodeCommit,
+  faTag,
+  faServer,
+  faList,
+  // Batch 3+
+  faCircleQuestion,
+  faCircleInfo,
+  // Batch 4+
+  faMagnifyingGlass,
+  faXmark,
+  faFaceFrown,
+  faSeedling,
+  faCloud,
+  faWandMagicSparkles,
+  faChevronUp,
+  faChevronDown,
+  // Batch 5+
+  faClockRotateLeft,
+  faTrash,
+  faHouse,
+  // Batch 6+
+  faStar,
+  faCubes,
+  faMap,
 } from '@fortawesome/free-solid-svg-icons'
 import { faGithub } from '@fortawesome/free-brands-svg-icons'
 
@@ -53,6 +78,26 @@ library.add(
   faDownload,
   faBoxArchive,
   faArrowRotateLeft,
+  faCodeCommit,
+  faTag,
+  faServer,
+  faList,
+  faCircleQuestion,
+  faCircleInfo,
+  faMagnifyingGlass,
+  faXmark,
+  faFaceFrown,
+  faSeedling,
+  faCloud,
+  faWandMagicSparkles,
+  faChevronUp,
+  faChevronDown,
+  faClockRotateLeft,
+  faTrash,
+  faHouse,
+  faStar,
+  faCubes,
+  faMap,
   faGithub,
 )
 
