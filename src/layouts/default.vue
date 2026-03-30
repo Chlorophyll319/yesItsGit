@@ -17,6 +17,9 @@
               <RouterLink to="/commands" class="router-link-active:font-bold">指令列表</RouterLink>
             </li>
             <li>
+              <RouterLink to="/scenarios" class="router-link-active:font-bold">情境導向</RouterLink>
+            </li>
+            <li>
               <RouterLink to="/history" class="router-link-active:font-bold">歷史記錄</RouterLink>
             </li>
             <li><RouterLink to="/about" class="router-link-active:font-bold">關於</RouterLink></li>
@@ -36,6 +39,9 @@
           <li><RouterLink to="/" class="router-link-active:font-bold">首頁</RouterLink></li>
           <li>
             <RouterLink to="/commands" class="router-link-active:font-bold">指令列表</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/scenarios" class="router-link-active:font-bold">情境導向</RouterLink>
           </li>
           <li>
             <RouterLink to="/history" class="router-link-active:font-bold">歷史記錄</RouterLink>

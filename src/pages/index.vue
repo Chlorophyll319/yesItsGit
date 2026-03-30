@@ -547,10 +547,19 @@ meta:
 <script setup>
 import { operations, branchActions, mergeFlags, stashActions, remoteActions, logFormats, explanations } from '@/data/generators.js'
 import { onKeyStroke } from '@vueuse/core'
+import { useRoute } from 'vue-router'
 
+const route = useRoute()
 const historyStore = useCommandHistoryStore()
 
 const selectedOp = ref(null)
+
+onMounted(() => {
+  const op = route.query.op
+  if (op && operations.some((o) => o.id === op)) {
+    selectedOp.value = op
+  }
+})
 const copied = ref(false)
 const copying = ref(false)
 const errors = ref({})
