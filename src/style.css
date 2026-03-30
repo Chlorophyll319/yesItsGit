@@ -112,6 +112,14 @@ body {
   --noise: 0;
 }
 
+@keyframes copy-pulse {
+  0%, 100% { transform: scale(1); }
+  40% { transform: scale(0.93); }
+}
+.animate-copy-success {
+  animation: copy-pulse 0.3s ease-in-out;
+}
+
 @plugin "daisyui/theme" {
   name: 'cyberpunk';
   default: false;

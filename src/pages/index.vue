@@ -45,8 +45,9 @@ meta:
                 v-model="form.url"
                 type="text"
                 placeholder="https://github.com/user/repo.git"
-                class="input input-bordered"
+                :class="['input input-bordered', errors.url ? 'input-error' : '']"
               />
+              <p v-if="errors.url" class="text-error text-xs mt-1">{{ errors.url }}</p>
             </label>
             <label class="form-control">
               <div class="label"><span class="label-text">目標資料夾（選填）</span></div>
@@ -88,8 +89,9 @@ meta:
                 v-model="form.message"
                 type="text"
                 placeholder="簡短描述這次變更"
-                class="input input-bordered"
+                :class="['input input-bordered', errors.message ? 'input-error' : '']"
               />
+              <p v-if="errors.message" class="text-error text-xs mt-1">{{ errors.message }}</p>
             </label>
             <label class="label cursor-pointer justify-start gap-3">
               <input v-model="form.includeAdd" type="checkbox" class="checkbox checkbox-sm" />
@@ -123,8 +125,9 @@ meta:
                 v-model="form.branchName"
                 type="text"
                 placeholder="feature/my-feature"
-                class="input input-bordered"
+                :class="['input input-bordered', errors.branchName ? 'input-error' : '']"
               />
+              <p v-if="errors.branchName" class="text-error text-xs mt-1">{{ errors.branchName }}</p>
             </label>
             <label
               v-if="form.branchAction === 'delete'"
@@ -143,8 +146,9 @@ meta:
                 v-model="form.sourceBranch"
                 type="text"
                 placeholder="feature/my-feature"
-                class="input input-bordered"
+                :class="['input input-bordered', errors.sourceBranch ? 'input-error' : '']"
               />
+              <p v-if="errors.sourceBranch" class="text-error text-xs mt-1">{{ errors.sourceBranch }}</p>
             </label>
             <div class="form-control">
               <div class="label"><span class="label-text">合併策略</span></div>
@@ -174,8 +178,9 @@ meta:
                 v-model="form.targetBranch"
                 type="text"
                 placeholder="main"
-                class="input input-bordered"
+                :class="['input input-bordered', errors.targetBranch ? 'input-error' : '']"
               />
+              <p v-if="errors.targetBranch" class="text-error text-xs mt-1">{{ errors.targetBranch }}</p>
             </label>
             <label class="label cursor-pointer justify-start gap-3">
               <input v-model="form.interactive" type="checkbox" class="checkbox checkbox-sm" />
@@ -309,8 +314,9 @@ meta:
                 v-model="form.cherryPickHash"
                 type="text"
                 placeholder="a1b2c3d"
-                class="input input-bordered"
+                :class="['input input-bordered', errors.cherryPickHash ? 'input-error' : '']"
               />
+              <p v-if="errors.cherryPickHash" class="text-error text-xs mt-1">{{ errors.cherryPickHash }}</p>
             </label>
             <label class="label cursor-pointer justify-start gap-3">
               <input v-model="form.cherryPickNoCommit" type="checkbox" class="checkbox checkbox-sm" />
@@ -339,8 +345,9 @@ meta:
                 v-model="form.tagName"
                 type="text"
                 placeholder="v1.0.0"
-                class="input input-bordered"
+                :class="['input input-bordered', errors.tagName ? 'input-error' : '']"
               />
+              <p v-if="errors.tagName" class="text-error text-xs mt-1">{{ errors.tagName }}</p>
             </label>
             <label v-if="form.tagType === 'annotated'" class="form-control">
               <div class="label"><span class="label-text">標籤說明</span></div>
@@ -383,8 +390,9 @@ meta:
                 v-model="form.remoteName"
                 type="text"
                 placeholder="origin"
-                class="input input-bordered"
+                :class="['input input-bordered', errors.remoteName ? 'input-error' : '']"
               />
+              <p v-if="errors.remoteName" class="text-error text-xs mt-1">{{ errors.remoteName }}</p>
             </label>
             <label v-if="form.remoteAction === 'add'" class="form-control">
               <div class="label"><span class="label-text">儲存庫 URL</span></div>
@@ -392,8 +400,9 @@ meta:
                 v-model="form.remoteUrl"
                 type="text"
                 placeholder="https://github.com/user/repo.git"
-                class="input input-bordered"
+                :class="['input input-bordered', errors.remoteUrl ? 'input-error' : '']"
               />
+              <p v-if="errors.remoteUrl" class="text-error text-xs mt-1">{{ errors.remoteUrl }}</p>
             </label>
             <label v-if="form.remoteAction === 'rename'" class="form-control">
               <div class="label"><span class="label-text">新名稱</span></div>
@@ -401,8 +410,9 @@ meta:
                 v-model="form.remoteNewName"
                 type="text"
                 placeholder="upstream"
-                class="input input-bordered"
+                :class="['input input-bordered', errors.remoteNewName ? 'input-error' : '']"
               />
+              <p v-if="errors.remoteNewName" class="text-error text-xs mt-1">{{ errors.remoteNewName }}</p>
             </label>
           </template>
 
@@ -465,6 +475,23 @@ meta:
             <pre v-else data-prefix="$"><code class="opacity-40">填寫左側表單後自動產生...</code></pre>
           </div>
 
+          <!-- Explain collapse -->
+          <div v-if="explanation.length > 0" class="collapse collapse-arrow bg-base-300 rounded-box">
+            <input type="checkbox" />
+            <div class="collapse-title text-sm font-semibold py-2 min-h-0 flex items-center gap-1.5">
+              <FontAwesomeIcon :icon="['fas', 'circle-question']" class="text-primary" />
+              指令解說
+            </div>
+            <div class="collapse-content">
+              <ul class="text-sm space-y-1.5 pt-1">
+                <li v-for="(line, i) in explanation" :key="i" class="flex items-start gap-2 opacity-80">
+                  <span class="text-primary font-mono shrink-0">▸</span>
+                  <span>{{ line }}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
           <div
             v-if="warningInfo"
             class="alert"
@@ -478,8 +505,8 @@ meta:
           </div>
 
           <button
-            class="btn w-full"
-            :class="copied ? 'btn-success' : 'btn-primary'"
+            class="btn w-full transition-transform"
+            :class="[copied ? 'btn-success' : 'btn-primary', copying ? 'animate-copy-success' : '']"
             :disabled="commandLines.length === 0"
             @click="copyCommand"
           >
@@ -495,16 +522,40 @@ meta:
       <FontAwesomeIcon :icon="['fas', 'hand-pointer']" class="text-4xl mb-3" />
       <p class="text-xl font-medium">選擇上方的操作類型開始使用</p>
     </div>
+
+    <!-- Danger confirmation dialog -->
+    <dialog ref="dangerDialogEl" class="modal">
+      <div class="modal-box">
+        <h3 class="font-bold text-lg text-error flex items-center gap-2">
+          <FontAwesomeIcon :icon="['fas', 'triangle-exclamation']" />
+          高危險操作確認
+        </h3>
+        <p class="py-3 text-sm font-semibold">{{ warningInfo?.title }}</p>
+        <p class="text-sm opacity-70">{{ warningInfo?.desc }}</p>
+        <div class="modal-action">
+          <button class="btn btn-error" @click="confirmDanger">確認複製</button>
+          <button class="btn" @click="cancelDanger">取消</button>
+        </div>
+      </div>
+      <form method="dialog" class="modal-backdrop">
+        <button @click="cancelDanger">close</button>
+      </form>
+    </dialog>
   </div>
 </template>
 
 <script setup>
-import { operations, branchActions, mergeFlags, stashActions, remoteActions, logFormats } from '@/data/generators.js'
+import { operations, branchActions, mergeFlags, stashActions, remoteActions, logFormats, explanations } from '@/data/generators.js'
+import { onKeyStroke } from '@vueuse/core'
 
 const historyStore = useCommandHistoryStore()
 
 const selectedOp = ref(null)
 const copied = ref(false)
+const copying = ref(false)
+const errors = ref({})
+const dangerPending = ref('')
+const dangerDialogEl = ref(null)
 
 const form = ref({
   // clone
@@ -557,6 +608,7 @@ const form = ref({
 })
 
 const currentOp = computed(() => operations.find((o) => o.id === selectedOp.value))
+const explanation = computed(() => explanations[selectedOp.value]?.(form.value) ?? [])
 
 const commandLines = computed(() => {
   const f = form.value
@@ -709,14 +761,33 @@ const warningInfo = computed(() => {
   return null
 })
 
-const selectOperation = (id) => {
-  selectedOp.value = id
+const validateForm = () => {
+  errors.value = {}
+  const f = form.value
+  const op = selectedOp.value
+  if (op === 'clone' && !f.url) { errors.value.url = '請輸入儲存庫 URL'; return false }
+  if (op === 'commit' && !f.message) { errors.value.message = '請輸入提交訊息'; return false }
+  if (op === 'branch' && !f.branchName) { errors.value.branchName = '請輸入分支名稱'; return false }
+  if (op === 'merge' && !f.sourceBranch) { errors.value.sourceBranch = '請輸入來源分支'; return false }
+  if (op === 'rebase' && !f.targetBranch) { errors.value.targetBranch = '請輸入目標分支'; return false }
+  if (op === 'cherry-pick' && !f.cherryPickHash) { errors.value.cherryPickHash = '請輸入 Commit Hash'; return false }
+  if (op === 'tag' && !f.tagName) { errors.value.tagName = '請輸入標籤名稱'; return false }
+  if (op === 'remote') {
+    if (!f.remoteName) { errors.value.remoteName = '請輸入遠端名稱'; return false }
+    if (f.remoteAction === 'add' && !f.remoteUrl) { errors.value.remoteUrl = '請輸入儲存庫 URL'; return false }
+    if (f.remoteAction === 'rename' && !f.remoteNewName) { errors.value.remoteNewName = '請輸入新名稱'; return false }
+  }
+  return true
 }
 
-const copyCommand = async () => {
-  const text = commandLines.value.join('\n')
-  if (!text) return
+watch(() => form.value, () => { errors.value = {} }, { deep: true })
 
+const selectOperation = (id) => {
+  selectedOp.value = id
+  errors.value = {}
+}
+
+const doCopy = async (text) => {
   try {
     await navigator.clipboard.writeText(text)
   } catch {
@@ -727,13 +798,45 @@ const copyCommand = async () => {
     document.execCommand('copy')
     document.body.removeChild(ta)
   }
-
   copied.value = true
+  copying.value = true
   historyStore.addCommand({
     operation: selectedOp.value,
     operationLabel: currentOp.value.label,
     command: text,
+    description: explanation.value[0] ?? '',
   })
+  setTimeout(() => (copying.value = false), 350)
   setTimeout(() => (copied.value = false), 2000)
 }
+
+const confirmDanger = () => {
+  dangerDialogEl.value?.close()
+  doCopy(dangerPending.value)
+  dangerPending.value = ''
+}
+
+const cancelDanger = () => {
+  dangerDialogEl.value?.close()
+  dangerPending.value = ''
+}
+
+const copyCommand = () => {
+  if (!validateForm()) return
+  const text = commandLines.value.join('\n')
+  if (!text) return
+  if (warningInfo.value?.danger) {
+    dangerPending.value = text
+    dangerDialogEl.value?.showModal()
+    return
+  }
+  doCopy(text)
+}
+
+onKeyStroke('Enter', (e) => {
+  const tag = e.target.tagName
+  if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return
+  if (commandLines.value.length === 0) return
+  copyCommand()
+})
 </script>
