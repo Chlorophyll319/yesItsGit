@@ -8,6 +8,10 @@ export const operations = [
   { id: 'pull', label: 'Pull', icon: ['fas', 'download'] },
   { id: 'stash', label: 'Stash', icon: ['fas', 'box-archive'] },
   { id: 'reset', label: 'Reset', icon: ['fas', 'arrow-rotate-left'] },
+  { id: 'cherry-pick', label: 'Cherry Pick', icon: ['fas', 'code-commit'] },
+  { id: 'tag', label: 'Tag', icon: ['fas', 'tag'] },
+  { id: 'remote', label: 'Remote', icon: ['fas', 'server'] },
+  { id: 'log', label: 'Log', icon: ['fas', 'list'] },
 ]
 
 export const branchActions = [
@@ -27,4 +31,18 @@ export const stashActions = [
   { value: 'pop', label: 'pop' },
   { value: 'list', label: 'list' },
   { value: 'drop', label: 'drop' },
+]
+
+export const remoteActions = [
+  { value: 'add', label: 'add（新增）' },
+  { value: 'remove', label: 'remove（刪除）' },
+  { value: 'rename', label: 'rename（重命名）' },
+  { value: 'show', label: 'show（查看）' },
+]
+
+export const logFormats = [
+  { value: 'default', label: '預設（完整格式）' },
+  { value: 'oneline', label: '--oneline（單行簡潔）' },
+  { value: 'graph', label: '--graph（圖形化分支）' },
+  { value: 'stat', label: '--stat（含變更統計）' },
 ]

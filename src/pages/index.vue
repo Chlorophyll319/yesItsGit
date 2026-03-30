@@ -300,6 +300,151 @@ meta:
               />
             </label>
           </template>
+
+          <!-- cherry-pick -->
+          <template v-else-if="selectedOp === 'cherry-pick'">
+            <label class="form-control">
+              <div class="label"><span class="label-text">Commit Hash</span></div>
+              <input
+                v-model="form.cherryPickHash"
+                type="text"
+                placeholder="a1b2c3d"
+                class="input input-bordered"
+              />
+            </label>
+            <label class="label cursor-pointer justify-start gap-3">
+              <input v-model="form.cherryPickNoCommit" type="checkbox" class="checkbox checkbox-sm" />
+              <span class="label-text">不自動 commit（-n），只套用變更到工作目錄</span>
+            </label>
+          </template>
+
+          <!-- tag -->
+          <template v-else-if="selectedOp === 'tag'">
+            <div class="form-control">
+              <div class="label"><span class="label-text">標籤類型</span></div>
+              <div class="flex gap-4">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" v-model="form.tagType" value="lightweight" class="radio radio-sm" />
+                  <span>輕量標籤</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" v-model="form.tagType" value="annotated" class="radio radio-sm" />
+                  <span>附註標籤（-a）</span>
+                </label>
+              </div>
+            </div>
+            <label class="form-control">
+              <div class="label"><span class="label-text">標籤名稱</span></div>
+              <input
+                v-model="form.tagName"
+                type="text"
+                placeholder="v1.0.0"
+                class="input input-bordered"
+              />
+            </label>
+            <label v-if="form.tagType === 'annotated'" class="form-control">
+              <div class="label"><span class="label-text">標籤說明</span></div>
+              <input
+                v-model="form.tagMessage"
+                type="text"
+                placeholder="Release version 1.0.0"
+                class="input input-bordered"
+              />
+            </label>
+            <label class="label cursor-pointer justify-start gap-3">
+              <input v-model="form.tagPush" type="checkbox" class="checkbox checkbox-sm" />
+              <span class="label-text">同時推送到遠端（git push origin &lt;tag&gt;）</span>
+            </label>
+          </template>
+
+          <!-- remote -->
+          <template v-else-if="selectedOp === 'remote'">
+            <div class="form-control">
+              <div class="label"><span class="label-text">操作</span></div>
+              <div class="flex gap-4 flex-wrap">
+                <label
+                  v-for="a in remoteActions"
+                  :key="a.value"
+                  class="flex items-center gap-2 cursor-pointer"
+                >
+                  <input
+                    type="radio"
+                    v-model="form.remoteAction"
+                    :value="a.value"
+                    class="radio radio-sm"
+                  />
+                  <span>{{ a.label }}</span>
+                </label>
+              </div>
+            </div>
+            <label class="form-control">
+              <div class="label"><span class="label-text">遠端名稱</span></div>
+              <input
+                v-model="form.remoteName"
+                type="text"
+                placeholder="origin"
+                class="input input-bordered"
+              />
+            </label>
+            <label v-if="form.remoteAction === 'add'" class="form-control">
+              <div class="label"><span class="label-text">儲存庫 URL</span></div>
+              <input
+                v-model="form.remoteUrl"
+                type="text"
+                placeholder="https://github.com/user/repo.git"
+                class="input input-bordered"
+              />
+            </label>
+            <label v-if="form.remoteAction === 'rename'" class="form-control">
+              <div class="label"><span class="label-text">新名稱</span></div>
+              <input
+                v-model="form.remoteNewName"
+                type="text"
+                placeholder="upstream"
+                class="input input-bordered"
+              />
+            </label>
+          </template>
+
+          <!-- log -->
+          <template v-else-if="selectedOp === 'log'">
+            <div class="form-control">
+              <div class="label"><span class="label-text">顯示格式</span></div>
+              <div class="flex flex-col gap-2">
+                <label
+                  v-for="lf in logFormats"
+                  :key="lf.value"
+                  class="flex items-center gap-2 cursor-pointer"
+                >
+                  <input
+                    type="radio"
+                    v-model="form.logFormat"
+                    :value="lf.value"
+                    class="radio radio-sm"
+                  />
+                  <span>{{ lf.label }}</span>
+                </label>
+              </div>
+            </div>
+            <label class="form-control">
+              <div class="label"><span class="label-text">篩選作者（選填）</span></div>
+              <input
+                v-model="form.logAuthor"
+                type="text"
+                placeholder="John"
+                class="input input-bordered"
+              />
+            </label>
+            <label class="form-control">
+              <div class="label"><span class="label-text">顯示筆數（選填）</span></div>
+              <input
+                v-model="form.logCount"
+                type="number"
+                placeholder="10"
+                class="input input-bordered"
+              />
+            </label>
+          </template>
         </div>
       </div>
 
@@ -354,7 +499,7 @@ meta:
 </template>
 
 <script setup>
-import { operations, branchActions, mergeFlags, stashActions } from '@/data/generators.js'
+import { operations, branchActions, mergeFlags, stashActions, remoteActions, logFormats } from '@/data/generators.js'
 
 const historyStore = useCommandHistoryStore()
 
@@ -392,6 +537,23 @@ const form = ref({
   // reset
   resetMode: 'mixed',
   resetTarget: 'HEAD~1',
+  // cherry-pick
+  cherryPickHash: '',
+  cherryPickNoCommit: false,
+  // tag
+  tagType: 'lightweight',
+  tagName: '',
+  tagMessage: '',
+  tagPush: false,
+  // remote
+  remoteAction: 'add',
+  remoteName: 'origin',
+  remoteUrl: '',
+  remoteNewName: '',
+  // log
+  logFormat: 'default',
+  logAuthor: '',
+  logCount: '',
 })
 
 const currentOp = computed(() => operations.find((o) => o.id === selectedOp.value))
@@ -454,6 +616,47 @@ const commandLines = computed(() => {
       if (!f.resetTarget) return []
       return [`git reset --${f.resetMode} ${f.resetTarget}`]
 
+    case 'cherry-pick':
+      if (!f.cherryPickHash) return []
+      return [`git cherry-pick${f.cherryPickNoCommit ? ' -n' : ''} ${f.cherryPickHash}`]
+
+    case 'tag': {
+      if (!f.tagName) return []
+      const lines = []
+      if (f.tagType === 'annotated') {
+        lines.push(`git tag -a ${f.tagName}${f.tagMessage ? ` -m "${f.tagMessage}"` : ''}`)
+      } else {
+        lines.push(`git tag ${f.tagName}`)
+      }
+      if (f.tagPush) lines.push(`git push origin ${f.tagName}`)
+      return lines
+    }
+
+    case 'remote': {
+      if (!f.remoteName) return []
+      if (f.remoteAction === 'add') {
+        if (!f.remoteUrl) return []
+        return [`git remote add ${f.remoteName} ${f.remoteUrl}`]
+      }
+      if (f.remoteAction === 'remove') return [`git remote remove ${f.remoteName}`]
+      if (f.remoteAction === 'rename') {
+        if (!f.remoteNewName) return []
+        return [`git remote rename ${f.remoteName} ${f.remoteNewName}`]
+      }
+      if (f.remoteAction === 'show') return [`git remote show ${f.remoteName}`]
+      return []
+    }
+
+    case 'log': {
+      const parts = ['git log']
+      if (f.logFormat === 'oneline') parts.push('--oneline')
+      else if (f.logFormat === 'graph') parts.push('--oneline --graph --all')
+      else if (f.logFormat === 'stat') parts.push('--stat')
+      if (f.logAuthor) parts.push(`--author="${f.logAuthor}"`)
+      if (f.logCount) parts.push(`-n ${f.logCount}`)
+      return [parts.join(' ')]
+    }
+
     default:
       return []
   }
@@ -494,6 +697,13 @@ const warningInfo = computed(() => {
       danger: true,
       title: '高危險：--hard 會永久丟棄所有未提交的變更，無法復原',
       desc: '工作目錄與暫存區的修改將全部消失，git 無法協助還原，請先確認沒有重要未提交內容',
+    }
+  }
+  if (selectedOp.value === 'cherry-pick') {
+    return {
+      danger: false,
+      title: '注意：cherry-pick 前請確認 commit hash 正確',
+      desc: '建議先用 git log 確認 hash，套用後若有衝突需手動解決後再 git cherry-pick --continue',
     }
   }
   return null
