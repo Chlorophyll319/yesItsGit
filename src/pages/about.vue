@@ -105,6 +105,11 @@ const features = [
     desc: '對 reset --hard、push --force 等操作給予明確警告',
   },
   {
+    icon: ['fas', 'map'],
+    title: '情境導向',
+    desc: '10 種常見情境，直接查看建議指令步驟與說明',
+  },
+  {
     icon: ['fas', 'moon'],
     title: '深色主題',
     desc: '支援淺色 / 深色主題切換，護眼舒適',
@@ -119,6 +124,8 @@ const techStack = [
   'Pinia',
   'Vue Router',
   'FontAwesome',
+  '@vueuse/core',
+  'vee-validate + yup',
   'pinia-plugin-persistedstate',
 ]
 

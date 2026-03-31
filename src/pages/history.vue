@@ -67,6 +67,7 @@
                 ><code>{{ line }}</code></pre>
             </template>
           </div>
+          <p v-if="item.description" class="text-xs text-base-content/40 mt-1">{{ item.description }}</p>
         </div>
       </div>
     </div>
