@@ -31,11 +31,19 @@ meta:
     <div v-if="selectedOp" class="grid lg:grid-cols-2 gap-6">
       <!-- Dynamic Form -->
       <div class="card bg-base-200 shadow">
-        <div class="card-body gap-4">
+        <div class="card-body gap-5">
           <h2 class="card-title text-lg">
             <FontAwesomeIcon :icon="currentOp.icon" class="text-primary" />
             {{ currentOp.label }}
           </h2>
+
+          <!-- Explanation -->
+          <ul v-if="explanation.length > 0" class="text-sm space-y-1 text-base-content/60">
+            <li v-for="(line, i) in explanation" :key="i" class="flex items-start gap-2">
+              <span class="text-primary font-mono shrink-0">▸</span>
+              <span>{{ line }}</span>
+            </li>
+          </ul>
 
           <!-- clone -->
           <template v-if="selectedOp === 'clone'">
@@ -466,6 +474,38 @@ meta:
             產生的指令
           </h2>
 
+          <!-- Prerequisite Steps -->
+          <div
+            v-if="workflow.length > 0 && commandLines.length > 0"
+            class="card bg-base-100 border border-base-300"
+          >
+            <div class="card-body p-3 gap-2">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-semibold text-base-content/60 uppercase tracking-wide">建議先執行</span>
+                <button
+                  class="btn btn-xs btn-outline"
+                  @click="copyWorkflow"
+                >
+                  <FontAwesomeIcon :icon="['fas', 'copy']" />
+                  複製全部
+                </button>
+              </div>
+              <div class="space-y-1.5">
+                <div
+                  v-for="(step, i) in workflow"
+                  :key="i"
+                  class="flex items-start gap-2 rounded p-2 bg-base-200"
+                >
+                  <span class="badge badge-neutral badge-sm shrink-0 mt-0.5">{{ i + 1 }}</span>
+                  <div class="min-w-0">
+                    <code class="text-sm font-mono break-all">{{ step.cmd }}</code>
+                    <p class="text-xs text-base-content/50 mt-0.5">{{ step.note }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="mockup-code min-h-[80px]">
             <template v-if="commandLines.length > 0">
               <pre v-for="(line, i) in commandLines" :key="i" data-prefix="$"
@@ -475,22 +515,6 @@ meta:
             <pre v-else data-prefix="$"><code class="opacity-40">填寫左側表單後自動產生...</code></pre>
           </div>
 
-          <!-- Explain collapse -->
-          <div v-if="explanation.length > 0" class="collapse collapse-arrow bg-base-300 rounded-box">
-            <input type="checkbox" />
-            <div class="collapse-title text-sm font-semibold py-2 min-h-0 flex items-center gap-1.5">
-              <FontAwesomeIcon :icon="['fas', 'circle-question']" class="text-primary" />
-              指令解說
-            </div>
-            <div class="collapse-content">
-              <ul class="text-sm space-y-1.5 pt-1">
-                <li v-for="(line, i) in explanation" :key="i" class="flex items-start gap-2 opacity-80">
-                  <span class="text-primary font-mono shrink-0">▸</span>
-                  <span>{{ line }}</span>
-                </li>
-              </ul>
-            </div>
-          </div>
 
           <div
             v-if="warningInfo"
@@ -545,7 +569,7 @@ meta:
 </template>
 
 <script setup>
-import { operations, branchActions, mergeFlags, stashActions, remoteActions, logFormats, explanations } from '@/data/generators.js'
+import { operations, branchActions, mergeFlags, stashActions, remoteActions, logFormats, explanations, workflowSteps } from '@/data/generators.js'
 import { onKeyStroke } from '@vueuse/core'
 import { useRoute } from 'vue-router'
 
@@ -618,6 +642,7 @@ const form = ref({
 
 const currentOp = computed(() => operations.find((o) => o.id === selectedOp.value))
 const explanation = computed(() => explanations[selectedOp.value]?.(form.value) ?? [])
+const workflow = computed(() => workflowSteps[selectedOp.value]?.(form.value) ?? [])
 
 const commandLines = computed(() => {
   const f = form.value
@@ -796,6 +821,20 @@ const selectOperation = (id) => {
   errors.value = {}
 }
 
+const copyWorkflow = async () => {
+  const text = workflow.value.map((s) => s.cmd).join('\n')
+  try {
+    await navigator.clipboard.writeText(text)
+  } catch {
+    const ta = document.createElement('textarea')
+    ta.value = text
+    document.body.appendChild(ta)
+    ta.select()
+    document.execCommand('copy')
+    document.body.removeChild(ta)
+  }
+}
+
 const doCopy = async (text) => {
   try {
     await navigator.clipboard.writeText(text)
@@ -849,3 +888,10 @@ onKeyStroke('Enter', (e) => {
   copyCommand()
 })
 </script>
+
+<style scoped>
+.label {
+  display: flex;
+  padding-bottom: 0.5rem;
+}
+</style>
