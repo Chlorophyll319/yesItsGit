@@ -101,11 +101,78 @@ export const workflowSteps = {
   },
 
   branch: (f) => {
-    if (f.branchAction !== 'delete' || !f.branchName) return []
-    return [
-      { cmd: 'git branch --merged', note: '列出已合併到目前分支的分支，確認要刪除的分支是否已合併' },
-      { cmd: `git log --oneline ${f.branchName} -5`, note: `確認 ${f.branchName} 的最新幾筆提交，確保沒有遺漏重要工作` },
+    if (!f.branchName) return []
+    if (f.branchAction === 'create')
+      return [
+        { cmd: 'git status', note: '確認工作目錄乾淨，避免切換分支時帶入未提交的變更' },
+        { cmd: 'git branch', note: '查看現有本地分支，確認新分支名稱不重複' },
+      ]
+    if (f.branchAction === 'switch')
+      return [
+        { cmd: 'git status', note: '確認工作目錄乾淨，切換分支前若有未提交變更可能導致衝突' },
+      ]
+    if (f.branchAction === 'delete')
+      return [
+        { cmd: 'git branch --merged', note: '列出已合併到目前分支的分支，確認要刪除的分支是否已合併' },
+        { cmd: `git log --oneline ${f.branchName} -5`, note: `確認 ${f.branchName} 的最新幾筆提交，確保沒有遺漏重要工作` },
+      ]
+    return []
+  },
+
+  commit: (f) => {
+    const steps = [{ cmd: 'git status', note: '確認工作目錄狀態，查看哪些檔案已變更或已暫存' }]
+    if (f.includeAdd) {
+      steps.push({ cmd: 'git diff', note: '檢視工作目錄的所有變更，確認即將 add 進去的內容' })
+    } else {
+      steps.push({ cmd: 'git diff --staged', note: '檢視暫存區的變更，確認即將提交的內容' })
+    }
+    return steps
+  },
+
+  pull: (f) => {
+    const remote = f.remote || 'origin'
+    const steps = [
+      { cmd: 'git status', note: '確認工作目錄乾淨，有未提交的變更可能導致 pull 衝突' },
+      { cmd: `git fetch ${remote}`, note: '先同步遠端資訊，讓你可以預覽即將拉取的內容' },
     ]
+    if (f.branch) {
+      steps.push({
+        cmd: `git log --oneline HEAD..${remote}/${f.branch}`,
+        note: `確認即將從 ${remote}/${f.branch} 拉取進來的 commit 清單`,
+      })
+    } else {
+      steps.push({
+        cmd: 'git log --oneline HEAD..@{u}',
+        note: '確認追蹤分支上有哪些你還沒有的新提交',
+      })
+    }
+    return steps
+  },
+
+  stash: (f) => {
+    if (f.stashAction === 'save')
+      return [
+        { cmd: 'git status', note: '確認哪些檔案將被 stash，未追蹤的新檔案預設不包含' },
+        { cmd: 'git diff', note: '預覽即將被 stash 的變更內容' },
+      ]
+    if (f.stashAction === 'pop' || f.stashAction === 'drop')
+      return [
+        { cmd: 'git stash list', note: '查看所有 stash，確認要取出的是哪一筆（預設為最新的 stash@{0}）' },
+      ]
+    return []
+  },
+
+  tag: (f) => {
+    if (!f.tagName) return []
+    return [
+      { cmd: 'git log --oneline -10', note: '確認目前提交歷史，確保要打標籤的是正確的 commit' },
+      { cmd: 'git fetch --tags', note: '同步遠端標籤，確認標籤名稱不與遠端重複' },
+    ]
+  },
+
+  remote: (f) => {
+    if (!f.remoteAction || f.remoteAction === 'show') return []
+    return [{ cmd: 'git remote -v', note: '查看目前所有遠端連結與對應 URL，確認後再進行操作' }]
   },
 }
 
