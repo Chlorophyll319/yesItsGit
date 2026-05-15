@@ -891,6 +891,7 @@ onKeyStroke('Enter', (e) => {
 
 <style scoped>
 .label {
+  display: flex;
   padding-bottom: 0.5rem;
 }
 </style>
