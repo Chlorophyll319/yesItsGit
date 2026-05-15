@@ -37,6 +37,14 @@ meta:
             {{ currentOp.label }}
           </h2>
 
+          <!-- Explanation -->
+          <ul v-if="explanation.length > 0" class="text-sm space-y-1 text-base-content/60">
+            <li v-for="(line, i) in explanation" :key="i" class="flex items-start gap-2">
+              <span class="text-primary font-mono shrink-0">▸</span>
+              <span>{{ line }}</span>
+            </li>
+          </ul>
+
           <!-- clone -->
           <template v-if="selectedOp === 'clone'">
             <label class="form-control">
@@ -475,22 +483,6 @@ meta:
             <pre v-else data-prefix="$"><code class="opacity-40">填寫左側表單後自動產生...</code></pre>
           </div>
 
-          <!-- Explain collapse -->
-          <div v-if="explanation.length > 0" class="collapse collapse-arrow bg-base-300 rounded-box">
-            <input type="checkbox" />
-            <div class="collapse-title text-sm font-semibold py-2 min-h-0 flex items-center gap-1.5">
-              <FontAwesomeIcon :icon="['fas', 'circle-question']" class="text-primary" />
-              指令解說
-            </div>
-            <div class="collapse-content">
-              <ul class="text-sm space-y-1.5 pt-1">
-                <li v-for="(line, i) in explanation" :key="i" class="flex items-start gap-2 opacity-80">
-                  <span class="text-primary font-mono shrink-0">▸</span>
-                  <span>{{ line }}</span>
-                </li>
-              </ul>
-            </div>
-          </div>
 
           <div
             v-if="warningInfo"
