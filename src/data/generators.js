@@ -47,6 +47,30 @@ export const logFormats = [
   { value: 'stat', label: '--stat（含變更統計）' },
 ]
 
+export const workflowSteps = {
+  merge: (f) => {
+    if (!f.sourceBranch) return []
+    return [
+      { cmd: 'git fetch origin', note: '取得遠端最新分支與提交，確保合併前資訊是最新的' },
+      { cmd: `git checkout ${f.sourceBranch}`, note: `先切到來源分支，確認它是最新狀態` },
+      { cmd: `git checkout -`, note: '切回剛才的分支，準備執行合併' },
+    ]
+  },
+
+  rebase: (f) => {
+    if (!f.targetBranch) return []
+    return [
+      { cmd: 'git fetch origin', note: '取得遠端最新提交，確保 rebase 目標是最新狀態' },
+      { cmd: `git checkout ${f.targetBranch}`, note: `切到目標分支，確認它已更新` },
+      { cmd: 'git checkout -', note: '切回原本的分支，準備執行 rebase' },
+    ]
+  },
+
+  'cherry-pick': () => [
+    { cmd: 'git log --oneline', note: '列出提交歷史，找到要挑選的 commit hash' },
+  ],
+}
+
 export const explanations = {
   clone: (f) => {
     const lines = ['將遠端儲存庫完整複製到本地端，包含所有歷史紀錄']
