@@ -49,45 +49,50 @@ export const logFormats = [
 
 export const explanations = {
   clone: (f) => {
-    if (!f.url) return []
-    const lines = [`將遠端儲存庫複製到本地端`, `來源：${f.url}`]
+    const lines = ['將遠端儲存庫完整複製到本地端，包含所有歷史紀錄']
+    if (f.url) lines.push(`來源：${f.url}`)
     if (f.dir) lines.push(`目標目錄：${f.dir}`)
     else lines.push('目標目錄：使用遠端儲存庫的預設名稱')
     return lines
   },
 
   commit: (f) => {
-    if (!f.message) return []
-    const subject = f.scope
-      ? `${f.commitType}(${f.scope}): ${f.message}`
-      : `${f.commitType}: ${f.message}`
-    const lines = [`建立一筆新的提交，訊息為「${subject}」`]
+    const subject = f.message
+      ? f.scope
+        ? `${f.commitType}(${f.scope}): ${f.message}`
+        : `${f.commitType}: ${f.message}`
+      : null
+    const lines = [
+      subject ? `建立一筆新的提交，訊息為「${subject}」` : '將暫存區的變更建立成一筆提交紀錄',
+    ]
     if (f.includeAdd) lines.push('git add . 會將所有已變更的檔案加入暫存區')
     lines.push(`提交類型 ${f.commitType} 遵循 Conventional Commits 規範`)
     return lines
   },
 
   branch: (f) => {
-    if (!f.branchName) return []
     if (f.branchAction === 'create')
       return [
-        `建立新分支並立即切換過去`,
-        `新分支名稱：${f.branchName}`,
+        f.branchName ? `建立新分支 ${f.branchName} 並立即切換過去` : '建立新分支並立即切換過去',
         'git checkout -b 是 git branch + git switch 的快捷合併',
       ]
-    if (f.branchAction === 'switch') return [`切換到已存在的分支`, `目標分支：${f.branchName}`]
+    if (f.branchAction === 'switch')
+      return [f.branchName ? `切換到已存在的分支 ${f.branchName}` : '切換到已存在的分支']
     if (f.branchAction === 'delete') {
-      const lines = [`刪除本地分支 ${f.branchName}`]
+      const lines = [f.branchName ? `刪除本地分支 ${f.branchName}` : '刪除本地分支']
       if (f.force) lines.push('-D 強制刪除，即使此分支尚未合併至其他分支也會執行')
       else lines.push('-d 安全刪除，若分支未合併 Git 會拒絕並提示警告')
       return lines
     }
-    return []
+    return ['管理本地分支：建立、切換或刪除']
   },
 
   merge: (f) => {
-    if (!f.sourceBranch) return []
-    const lines = [`將分支 ${f.sourceBranch} 合併到目前所在分支`]
+    const lines = [
+      f.sourceBranch
+        ? `將分支 ${f.sourceBranch} 合併到目前所在分支`
+        : '將指定分支合併到目前所在分支',
+    ]
     if (f.mergeFlag === '--no-ff')
       lines.push('--no-ff 強制產生合併節點（merge commit），保留分支歷史')
     else if (f.mergeFlag === '--squash')
@@ -97,9 +102,10 @@ export const explanations = {
   },
 
   rebase: (f) => {
-    if (!f.targetBranch) return []
     const lines = [
-      `將目前分支的提交重新接到 ${f.targetBranch} 的最新點上`,
+      f.targetBranch
+        ? `將目前分支的提交重新接到 ${f.targetBranch} 的最新點上`
+        : '將目前分支的提交重新接到目標分支的最新點上',
       'rebase 會重寫提交歷史，讓提交紀錄保持線性',
     ]
     if (f.interactive) lines.push('-i 互動模式可讓你逐一編輯、合併或刪除每個提交')
@@ -137,12 +143,12 @@ export const explanations = {
       return ['取出最近一筆 stash 並套用到工作目錄，套用成功後自動刪除該 stash']
     if (f.stashAction === 'list') return ['列出所有已儲存的 stash，每筆顯示索引、分支與備註']
     if (f.stashAction === 'drop') return ['刪除最近一筆 stash，若要指定刪除可加上 stash@{n}']
-    return []
+    return ['暫時儲存目前未完成的工作，稍後再取回繼續']
   },
 
   reset: (f) => {
-    if (!f.resetTarget) return []
-    const lines = [`將 HEAD 移回到 ${f.resetTarget}`]
+    const target = f.resetTarget || 'HEAD~1'
+    const lines = [`將 HEAD 移回到 ${target}`]
     if (f.resetMode === 'soft')
       lines.push('--soft 保留暫存區與工作目錄的變更，提交內容退回暫存狀態')
     else if (f.resetMode === 'mixed')
@@ -153,9 +159,10 @@ export const explanations = {
   },
 
   'cherry-pick': (f) => {
-    if (!f.cherryPickHash) return []
     const lines = [
-      `將指定 commit（${f.cherryPickHash}）的變更套用到目前分支`,
+      f.cherryPickHash
+        ? `將指定 commit（${f.cherryPickHash}）的變更套用到目前分支`
+        : '從其他分支挑選特定的 commit 套用到目前分支',
       '只挑選該 commit 的差異內容，不影響其他歷史',
     ]
     if (f.cherryPickNoCommit)
@@ -164,37 +171,38 @@ export const explanations = {
   },
 
   tag: (f) => {
-    if (!f.tagName) return []
-    const lines = [`在目前 commit 上建立標籤 ${f.tagName}`]
+    const lines = [
+      f.tagName ? `在目前 commit 上建立標籤 ${f.tagName}` : '在目前 commit 上建立版本標籤',
+    ]
     if (f.tagType === 'annotated') {
       lines.push('-a 附註標籤會記錄建立者、時間與說明，適合正式版本發布')
       if (f.tagMessage) lines.push(`標籤說明：${f.tagMessage}`)
     } else {
       lines.push('輕量標籤只是一個指向 commit 的指標，沒有額外元資料')
     }
-    if (f.tagPush) lines.push(`git push origin ${f.tagName} 將此標籤推送到遠端`)
+    if (f.tagPush && f.tagName) lines.push(`git push origin ${f.tagName} 將此標籤推送到遠端`)
     return lines
   },
 
   remote: (f) => {
-    if (!f.remoteName) return []
+    const name = f.remoteName || 'origin'
     if (f.remoteAction === 'add') {
-      if (!f.remoteUrl) return []
-      return [
-        `新增遠端連結，命名為 ${f.remoteName}`,
-        `遠端位址：${f.remoteUrl}`,
-        '之後可用 git push/pull ' + f.remoteName + ' 與此遠端互動',
-      ]
+      const lines = [`新增遠端連結，命名為 ${name}`]
+      if (f.remoteUrl) {
+        lines.push(`遠端位址：${f.remoteUrl}`)
+        lines.push(`之後可用 git push/pull ${name} 與此遠端互動`)
+      }
+      return lines
     }
     if (f.remoteAction === 'remove')
-      return [`移除本地端對遠端 ${f.remoteName} 的連結設定（不影響遠端本身）`]
+      return [`移除本地端對遠端 ${name} 的連結設定（不影響遠端本身）`]
     if (f.remoteAction === 'rename') {
-      if (!f.remoteNewName) return []
-      return [`將遠端 ${f.remoteName} 重新命名為 ${f.remoteNewName}`]
+      const lines = [`將遠端 ${name} 重新命名`]
+      if (f.remoteNewName) lines.push(`新名稱：${f.remoteNewName}`)
+      return lines
     }
-    if (f.remoteAction === 'show')
-      return [`顯示遠端 ${f.remoteName} 的詳細資訊，包含 URL 與追蹤分支`]
-    return []
+    if (f.remoteAction === 'show') return [`顯示遠端 ${name} 的詳細資訊，包含 URL 與追蹤分支`]
+    return ['管理遠端連結：新增、刪除、重命名或查看']
   },
 
   log: (f) => {
