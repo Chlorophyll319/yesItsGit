@@ -67,6 +67,46 @@ export const workflowSteps = {
   'cherry-pick': () => [
     { cmd: 'git log --oneline', note: '列出提交歷史，找到要挑選的 commit hash' },
   ],
+
+  push: (f) => {
+    const remote = f.remote || 'origin'
+    const steps = [
+      { cmd: `git fetch ${remote}`, note: '同步遠端最新狀態，確認遠端是否有你沒有的新提交' },
+    ]
+    if (f.branch) {
+      steps.push({
+        cmd: `git log --oneline ${remote}/${f.branch}..HEAD`,
+        note: `確認即將推送到 ${remote}/${f.branch} 的 commit 清單，避免推錯內容`,
+      })
+    } else {
+      steps.push({
+        cmd: 'git status',
+        note: '確認目前分支與遠端的差距（ahead N commits），以及有無未提交的變更',
+      })
+    }
+    return steps
+  },
+
+  reset: (f) => {
+    const steps = [
+      { cmd: 'git log --oneline -8', note: '確認提交歷史，找到你要回退到的目標位置' },
+    ]
+    if (f.resetMode === 'hard') {
+      steps.push({
+        cmd: 'git status',
+        note: '確認目前有哪些未提交的變更，--hard 會永久清除這些內容，無法復原',
+      })
+    }
+    return steps
+  },
+
+  branch: (f) => {
+    if (f.branchAction !== 'delete' || !f.branchName) return []
+    return [
+      { cmd: 'git branch --merged', note: '列出已合併到目前分支的分支，確認要刪除的分支是否已合併' },
+      { cmd: `git log --oneline ${f.branchName} -5`, note: `確認 ${f.branchName} 的最新幾筆提交，確保沒有遺漏重要工作` },
+    ]
+  },
 }
 
 export const explanations = {
