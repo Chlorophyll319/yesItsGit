@@ -59,9 +59,8 @@ export const workflowSteps = {
   rebase: (f) => {
     if (!f.targetBranch) return []
     return [
-      { cmd: 'git fetch origin', note: '取得遠端最新提交，確保 rebase 目標是最新狀態' },
-      { cmd: `git checkout ${f.targetBranch}`, note: `切到目標分支，確認它已更新` },
-      { cmd: 'git checkout -', note: '切回原本的分支，準備執行 rebase' },
+      { cmd: 'git fetch origin', note: '從遠端同步最新資訊，確保 Git 掌握各分支的最新狀態' },
+      { cmd: `git log --oneline origin/${f.targetBranch} -5`, note: `確認目標分支（${f.targetBranch}）的最新提交，這是你的提交將會接在上面的基準點` },
     ]
   },
 
