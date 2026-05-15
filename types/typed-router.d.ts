@@ -22,6 +22,7 @@ declare module 'vue-router/auto-routes' {
     '/about': RouteRecordInfo<'/about', '/about', Record<never, never>, Record<never, never>>,
     '/commands': RouteRecordInfo<'/commands', '/commands', Record<never, never>, Record<never, never>>,
     '/history': RouteRecordInfo<'/history', '/history', Record<never, never>, Record<never, never>>,
+    '/scenarios': RouteRecordInfo<'/scenarios', '/scenarios', Record<never, never>, Record<never, never>>,
   }
 
   /**
@@ -49,6 +50,10 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/history.vue': {
       routes: '/history'
+      views: never
+    }
+    'src/pages/scenarios.vue': {
+      routes: '/scenarios'
       views: never
     }
   }
