@@ -51,9 +51,8 @@ export const workflowSteps = {
   merge: (f) => {
     if (!f.sourceBranch) return []
     return [
-      { cmd: 'git fetch origin', note: '取得遠端最新分支與提交，確保合併前資訊是最新的' },
-      { cmd: `git checkout ${f.sourceBranch}`, note: `先切到來源分支，確認它是最新狀態` },
-      { cmd: `git checkout -`, note: '切回剛才的分支，準備執行合併' },
+      { cmd: 'git fetch origin', note: '從遠端同步最新資訊，確保 Git 掌握各分支的最新狀態' },
+      { cmd: `git log --oneline origin/${f.sourceBranch} -5`, note: `確認來源分支（${f.sourceBranch}）的最新提交，確保這是你要合併進來的內容` },
     ]
   },
 
