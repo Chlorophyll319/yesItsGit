@@ -31,7 +31,7 @@ meta:
     <div v-if="selectedOp" class="grid lg:grid-cols-2 gap-6">
       <!-- Dynamic Form -->
       <div class="card bg-base-200 shadow">
-        <div class="card-body gap-4">
+        <div class="card-body gap-5">
           <h2 class="card-title text-lg">
             <FontAwesomeIcon :icon="currentOp.icon" class="text-primary" />
             {{ currentOp.label }}
@@ -888,3 +888,9 @@ onKeyStroke('Enter', (e) => {
   copyCommand()
 })
 </script>
+
+<style scoped>
+.label {
+  padding-bottom: 0.5rem;
+}
+</style>
